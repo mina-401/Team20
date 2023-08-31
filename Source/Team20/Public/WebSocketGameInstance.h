@@ -19,4 +19,9 @@ public:
 	virtual void Shutdown() override;
 
 	TSharedPtr<IWebSocket> WebSocket;
+	//FString baseURLTest = "http://172.16.17.11:5000";
+	void ReceivedData(const FString& MessageString);
+
+	UPROPERTY()
+	class ABaseCharacter* me;
 };
