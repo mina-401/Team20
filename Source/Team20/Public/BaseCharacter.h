@@ -34,7 +34,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	UPROPERTY(BlueprintReadWrite,Category=ServerInput)
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Input)
 	int32 MyData;
 	
 	//UFUNCTION(VisibleAnywhere)
