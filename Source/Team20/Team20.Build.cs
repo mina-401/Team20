@@ -9,7 +9,7 @@ public class Team20 : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		//PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" ,});
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "OnlineSubsystem", "OnlineSubsystemSteam", "UMG", "Slate", "SlateCore", "HTTP", "Json", "JsonUtilities", "WebSockets" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "OnlineSubsystem", "OnlineSubsystemSteam", "UMG", "Slate", "SlateCore", "HTTP", "Json", "JsonUtilities", "WebSockets","Sockets","Networking"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

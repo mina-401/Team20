@@ -10,7 +10,6 @@
 AHttpRequestActor::AHttpRequestActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 void AHttpRequestActor::BeginPlay()
@@ -21,7 +20,10 @@ void AHttpRequestActor::BeginPlay()
 
 	//FString baseURLTest = "http://192.168.1.60:5000";
 	GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, FString::Printf(TEXT("BaseURL: %s"), *baseURLTest), true, FVector2D(1, 1));
-	SendRequest(baseURLTest);
+	//SendRequest(baseURLTest);
+	//PostRequest(baseURLTest);
+
+	//NotifyServer();
 }
 
 void AHttpRequestActor::Tick(float DeltaTime)
@@ -58,8 +60,8 @@ void AHttpRequestActor::OnReceivedData(FHttpRequestPtr Request, FHttpResponsePtr
 		FString res = Response->GetContentAsString(); //배열로 받기?
 		//FString parsedData = UJsonParseLibrary::JsonParse(res);
 
-		//GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, FString::Printf(TEXT("Request: %s"), *res), true, FVector2D(1, 1));
-		GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, FString::Printf(TEXT("Request Successfull!")), true, FVector2D(1, 1));
+		GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, FString::Printf(TEXT("Request: %s"), *res), true, FVector2D(1, 1));
+		/*GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, FString::Printf(TEXT("Request Successfull!")), true, FVector2D(1, 1));*/
 		//gm->SetLogText(parsedData);
 	}
 	else
@@ -74,9 +76,9 @@ void AHttpRequestActor::OnReceivedData(FHttpRequestPtr Request, FHttpResponsePtr
 void AHttpRequestActor::PostRequest(const FString url)
 {
 	TMap<FString, FString> studentData;
-	studentData.Add("Name", "AAA");
-	studentData.Add("Age", "50");
-	studentData.Add("Height", "200");
+	studentData.Add("message", "hiunreal");
+	//studentData.Add("Age", "50");
+	//studentData.Add("Height", "200");
 
 	FString myJsonData = UJsonParseLibrary::MakeJson(studentData);
 	//gm->SetLogText(myJsonData);
@@ -93,24 +95,24 @@ void AHttpRequestActor::PostRequest(const FString url)
 }
 
 // Json 파일 저장하기
-void AHttpRequestActor::SaveJson(const FString jsonData)
-{
-	// 만일, 지정된 이름의 폴더가 없으면 해당 폴더를 만든다.
-	FPlatformFileManager& fileManager = FPlatformFileManager::Get();
-	IPlatformFile& platformFile = fileManager.GetPlatformFile();
-
-	FString dirPath = FPaths::ProjectContentDir() + "/JsonData";
-	if (!platformFile.DirectoryExists(*dirPath))
-	{
-		platformFile.CreateDirectory(*dirPath);
-	}
-
-	// json 데이터를 파일로 저장한다.
-	FString fullPath = dirPath + "/MyJson.json";
-	UE_LOG(LogTemp, Warning, TEXT("save Path: %s"), *fullPath);
-	bool bIsSaved = FFileHelper::SaveStringToFile(jsonData, *fullPath);
-	/*gm->SetLogText(FString::Printf(TEXT("%s"), bIsSaved ? *FString("Json Saved Successfully!") : *FString("Failed saving file...")));*/
-}
+//void AHttpRequestActor::SaveJson(const FString jsonData)
+//{
+//	// 만일, 지정된 이름의 폴더가 없으면 해당 폴더를 만든다.
+//	FPlatformFileManager& fileManager = FPlatformFileManager::Get();
+//	IPlatformFile& platformFile = fileManager.GetPlatformFile();
+//
+//	FString dirPath = FPaths::ProjectContentDir() + "/JsonData";
+//	if (!platformFile.DirectoryExists(*dirPath))
+//	{
+//		platformFile.CreateDirectory(*dirPath);
+//	}
+//
+//	// json 데이터를 파일로 저장한다.
+//	FString fullPath = dirPath + "/MyJson.json";
+//	UE_LOG(LogTemp, Warning, TEXT("save Path: %s"), *fullPath);
+//	bool bIsSaved = FFileHelper::SaveStringToFile(jsonData, *fullPath);
+//	/*gm->SetLogText(FString::Printf(TEXT("%s"), bIsSaved ? *FString("Json Saved Successfully!") : *FString("Failed saving file...")));*/
+//}
 
 
 // POST 요청 함수
@@ -124,7 +126,7 @@ void AHttpRequestActor::OnPostData(TSharedPtr<IHttpRequest> Request, TSharedPtr<
 		//gm->SetLogText(receivedData);
 
 		// 받은 데이터를 파일로 저장한다.
-		SaveJson(receivedData);
+		//SaveJson(receivedData);
 	}
 	else
 	{
@@ -149,78 +151,78 @@ void AHttpRequestActor::OnPostData(TSharedPtr<IHttpRequest> Request, TSharedPtr<
 		// 응답 코드 확인
 		int32 responseCode = Response->GetResponseCode();
 		//gm->SetLogText(FString::Printf(TEXT("Response Code: %d"), responseCode));
-
 	}
 }
 
-// 이미지 요청 함수
-void AHttpRequestActor::GetImage(const FString url)
-{
-	TSharedRef<IHttpRequest> req = FHttpModule::Get().CreateRequest();
-	req->SetURL(url);
-	req->SetVerb("GET");
-	req->SetHeader(TEXT("Content-Type"), TEXT("image/jpeg"));
-	req->OnProcessRequestComplete().BindUObject(this, &AHttpRequestActor::OnGetImageData);
-	req->ProcessRequest();
-}
 
-void AHttpRequestActor::OnGetImageData(TSharedPtr<IHttpRequest> Request, TSharedPtr<IHttpResponse> Response, bool bConnectedSuccessfully)
-{
-	if (bConnectedSuccessfully)
-	{
-		TArray<uint8> texBites = Response->GetContent();
-		FString imagePath = FPaths::ProjectPersistentDownloadDir() + "/MyGetImage.jpg";
-		FFileHelper::SaveArrayToFile(texBites, *imagePath);
-		UTexture2D* realTex = FImageUtils::ImportBufferAsTexture2D(texBites);
-		/*gm->SetImageTexture(realTex);
-		gm->SetLogText("Get Image Successfully!");*/
-	}
-	else
-	{
-		//gm->SetLogText(FString::Printf(TEXT("Failed...\nResponse Code: %d"), Response->GetResponseCode()));
-	}
-}
-
-void AHttpRequestActor::SaveImage(const UTexture2D* tex)
-{
-
-}
-
-// 텍스쳐 Post 함수
-void AHttpRequestActor::PostImage(const FString url, const UTexture2D* tex)
-{
-	TArray<uint8> convertedImage;
-
-	// 텍스쳐의 각 픽셀 컬러 정보를 배열에 담는다.
-	FTexture2DMipMap mipData = tex->GetPlatformData()->Mips[0];
-
-	TArray<FColor> imgArr;
-	int32 width = mipData.SizeX;
-	int32 height = mipData.SizeY;
-	imgArr.AddUninitialized(width * height * sizeof(FColor));
-
-	void* pixelData = mipData.BulkData.Lock(LOCK_READ_ONLY);
-
-	if (pixelData != nullptr)
-	{
-		FMemory::Memcpy(imgArr.GetData(), pixelData, imgArr.Num());
-	}
-	mipData.BulkData.Unlock();
-
-	// 텍스쳐의 픽셀 컬러 배열을 이미지 포맷으로 압축한다.
-	FImageUtils::ThumbnailCompressImageArray(width, height, imgArr, convertedImage);
-
-	// 이미지 바이트 배열을 포스트 한다.
-	TSharedRef<IHttpRequest> req = FHttpModule::Get().CreateRequest();
-	req->SetURL(url);
-	req->SetVerb("POST");
-	req->SetHeader(TEXT("Content-Type"), TEXT("image/jpeg"));
-	req->SetContent(convertedImage);
-	req->OnProcessRequestComplete().BindUObject(this, &AHttpRequestActor::OnPostTextureData);
-	req->ProcessRequest();
-}
-
-void AHttpRequestActor::OnPostTextureData(TSharedPtr<IHttpRequest> Request, TSharedPtr<IHttpResponse> Response, bool bConnectedSuccessfully)
-{
-	/*gm->SetLogText(FString::Printf(TEXT("%s"), bConnectedSuccessfully ? *Response->GetContentAsString() : *FString(TEXT("Reponse code: %d"), Response->GetResponseCode())));*/
-}
+//// 이미지 요청 함수
+//void AHttpRequestActor::GetImage(const FString url)
+//{
+//	TSharedRef<IHttpRequest> req = FHttpModule::Get().CreateRequest();
+//	req->SetURL(url);
+//	req->SetVerb("GET");
+//	req->SetHeader(TEXT("Content-Type"), TEXT("image/jpeg"));
+//	req->OnProcessRequestComplete().BindUObject(this, &AHttpRequestActor::OnGetImageData);
+//	req->ProcessRequest();
+//}
+//
+//void AHttpRequestActor::OnGetImageData(TSharedPtr<IHttpRequest> Request, TSharedPtr<IHttpResponse> Response, bool bConnectedSuccessfully)
+//{
+//	if (bConnectedSuccessfully)
+//	{
+//		TArray<uint8> texBites = Response->GetContent();
+//		FString imagePath = FPaths::ProjectPersistentDownloadDir() + "/MyGetImage.jpg";
+//		FFileHelper::SaveArrayToFile(texBites, *imagePath);
+//		UTexture2D* realTex = FImageUtils::ImportBufferAsTexture2D(texBites);
+//		/*gm->SetImageTexture(realTex);
+//		gm->SetLogText("Get Image Successfully!");*/
+//	}
+//	else
+//	{
+//		//gm->SetLogText(FString::Printf(TEXT("Failed...\nResponse Code: %d"), Response->GetResponseCode()));
+//	}
+//}
+//
+//void AHttpRequestActor::SaveImage(const UTexture2D* tex)
+//{
+//
+//}
+//
+//// 텍스쳐 Post 함수
+//void AHttpRequestActor::PostImage(const FString url, const UTexture2D* tex)
+//{
+//	TArray<uint8> convertedImage;
+//
+//	// 텍스쳐의 각 픽셀 컬러 정보를 배열에 담는다.
+//	FTexture2DMipMap mipData = tex->GetPlatformData()->Mips[0];
+//
+//	TArray<FColor> imgArr;
+//	int32 width = mipData.SizeX;
+//	int32 height = mipData.SizeY;
+//	imgArr.AddUninitialized(width * height * sizeof(FColor));
+//
+//	void* pixelData = mipData.BulkData.Lock(LOCK_READ_ONLY);
+//
+//	if (pixelData != nullptr)
+//	{
+//		FMemory::Memcpy(imgArr.GetData(), pixelData, imgArr.Num());
+//	}
+//	mipData.BulkData.Unlock();
+//
+//	// 텍스쳐의 픽셀 컬러 배열을 이미지 포맷으로 압축한다.
+//	FImageUtils::ThumbnailCompressImageArray(width, height, imgArr, convertedImage);
+//
+//	// 이미지 바이트 배열을 포스트 한다.
+//	TSharedRef<IHttpRequest> req = FHttpModule::Get().CreateRequest();
+//	req->SetURL(url);
+//	req->SetVerb("POST");
+//	req->SetHeader(TEXT("Content-Type"), TEXT("image/jpeg"));
+//	req->SetContent(convertedImage);
+//	req->OnProcessRequestComplete().BindUObject(this, &AHttpRequestActor::OnPostTextureData);
+//	req->ProcessRequest();
+//}
+//
+//void AHttpRequestActor::OnPostTextureData(TSharedPtr<IHttpRequest> Request, TSharedPtr<IHttpResponse> Response, bool bConnectedSuccessfully)
+//{
+//	/*gm->SetLogText(FString::Printf(TEXT("%s"), bConnectedSuccessfully ? *Response->GetContentAsString() : *FString(TEXT("Reponse code: %d"), Response->GetResponseCode())));*/
+//}

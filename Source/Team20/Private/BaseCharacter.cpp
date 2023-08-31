@@ -14,6 +14,7 @@
 #include <Sound/SoundBase.h>
 #include "GameFramework/SpringArmComponent.h"
 
+
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {

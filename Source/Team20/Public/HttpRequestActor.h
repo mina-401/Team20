@@ -39,7 +39,11 @@ private:
 	UPROPERTY()
 	class AHttpGameModeBase* gm;
 
-	//FString baseURLTest = "http://192.168.1.60:5000";
-	FString baseURLTest = "http://127.0.0.1:8000";
+	/*UPROPERTY()
+	class UWebSocketGameInstance* webgm;*/
 
+	FString baseURLTest = "http://172.16.17.11:5000/test";
+	//FString baseURLTest = "http://127.0.0.1:8000";
+
+	//void NotifyServer();
 };
